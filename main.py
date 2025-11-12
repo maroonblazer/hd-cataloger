@@ -20,7 +20,7 @@ from src.consolidate import plan_consolidation
 def cmd_catalog(args):
     """Handle the 'catalog' command."""
     try:
-        scan_drive(args.drive_path, args.output_dir)
+        scan_drive(args.drive_path, args.output_dir, args.include_hidden)
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -68,6 +68,9 @@ Examples:
   # Scan a drive
   %(prog)s catalog /Volumes/MyDrive
 
+  # Scan a Time Machine backup (includes hidden files)
+  %(prog)s catalog /Volumes/.timemachine --include-hidden
+
   # Find duplicates across multiple drives
   %(prog)s find-duplicates catalogs/Drive1_catalog.json catalogs/Drive2_catalog.json
 
@@ -95,6 +98,11 @@ Examples:
         '-o', '--output-dir',
         default='catalogs',
         help='Directory to save catalog files (default: catalogs)'
+    )
+    parser_catalog.add_argument(
+        '--include-hidden',
+        action='store_true',
+        help='Include hidden files and directories (useful for Time Machine backups)'
     )
     parser_catalog.set_defaults(func=cmd_catalog)
 

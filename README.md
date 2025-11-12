@@ -56,6 +56,12 @@ python3 main.py catalog /Volumes/MyDrive2
 python3 main.py catalog /Volumes/MyDrive3
 ```
 
+**For Time Machine backups:** Time Machine stores backups in hidden directories (starting with `.`). Use the `--include-hidden` flag to scan these:
+
+```bash
+python3 main.py catalog /Volumes/.timemachine --include-hidden
+```
+
 This creates catalog files in the `catalogs/` directory:
 - `MyDrive1_catalog.json`
 - `MyDrive2_catalog.json`
@@ -125,10 +131,15 @@ python3 main.py catalog <drive_path> [options]
 
 **Options:**
 - `-o, --output-dir` - Directory to save catalog files (default: `catalogs`)
+- `--include-hidden` - Include hidden files and directories (useful for Time Machine backups)
 
-**Example:**
+**Examples:**
 ```bash
+# Scan a regular drive
 python3 main.py catalog /Volumes/Backup2024
+
+# Scan a Time Machine backup with hidden files
+python3 main.py catalog /Volumes/.timemachine --include-hidden
 ```
 
 ### find-duplicates
@@ -272,6 +283,7 @@ The goal is to **minimize the number of drives in use** while ensuring at least 
 3. **Check capacity** - Provide actual drive capacities with `--capacities` for accurate planning
 4. **Review plans** - Always review consolidation plans before taking action
 5. **Test with copies** - Test the consolidation process with non-critical data first
+6. **Time Machine backups** - Use `--include-hidden` flag when cataloging Time Machine drives, as backups are stored in hidden directories (e.g., `/Volumes/.timemachine`)
 
 ## Limitations
 
@@ -287,6 +299,9 @@ The goal is to **minimize the number of drives in use** while ensuring at least 
 
 **Problem:** "Permission denied" errors during scanning
 - **Solution:** Some system files may be protected; the tool will skip them and continue
+
+**Problem:** Time Machine drive shows 0 files found
+- **Solution:** Time Machine backups are stored in hidden directories. Use `--include-hidden` flag and ensure you're pointing to the correct path (e.g., `/Volumes/.timemachine` instead of `/Volumes/timemachine`)
 
 **Problem:** Consolidation plan shows "Could not assign file"
 - **Solution:** Increase drive capacities or reduce the number of files to consolidate

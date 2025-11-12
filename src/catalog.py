@@ -32,13 +32,14 @@ def get_volume_label(drive_path: str) -> str:
     return path.name if path.name else 'unknown_volume'
 
 
-def scan_drive(drive_path: str, output_dir: str = 'catalogs') -> Dict:
+def scan_drive(drive_path: str, output_dir: str = 'catalogs', include_hidden: bool = False) -> Dict:
     """
     Scan a drive and create a catalog of all files.
 
     Args:
         drive_path: Path to the drive to scan
         output_dir: Directory where catalog JSON will be saved
+        include_hidden: Whether to include hidden files and directories (default: False)
 
     Returns:
         Dictionary containing the catalog data
@@ -67,12 +68,13 @@ def scan_drive(drive_path: str, output_dir: str = 'catalogs') -> Dict:
 
     # Walk through all directories and files
     for root, dirs, files in os.walk(drive_path):
-        # Skip hidden directories (starting with .)
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        # Skip hidden directories (starting with .) unless include_hidden is True
+        if not include_hidden:
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
 
         for filename in files:
-            # Skip hidden files
-            if filename.startswith('.'):
+            # Skip hidden files unless include_hidden is True
+            if not include_hidden and filename.startswith('.'):
                 continue
 
             file_path = os.path.join(root, filename)
@@ -130,8 +132,9 @@ if __name__ == '__main__':
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python -m src.catalog <drive_path>")
+        print("Usage: python -m src.catalog <drive_path> [--include-hidden]")
         sys.exit(1)
 
     drive_path = sys.argv[1]
-    scan_drive(drive_path)
+    include_hidden = '--include-hidden' in sys.argv
+    scan_drive(drive_path, include_hidden=include_hidden)
