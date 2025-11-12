@@ -1,0 +1,15 @@
+# HD Cataloger - Requirements
+#
+# This tool uses only Python standard library modules.
+# No external dependencies are required.
+#
+# Minimum Python version: 3.7
+#
+# Standard library modules used:
+# - os
+# - json
+# - pathlib
+# - datetime
+# - collections
+# - argparse
+# - sys
