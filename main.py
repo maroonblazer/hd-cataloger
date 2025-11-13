@@ -67,21 +67,19 @@ def cmd_report(args):
 
         if 'duplicates' in data:
             # It's a duplicate report
-            report = generate_duplicate_report(
+            # Report function will automatically use pager if no output file specified
+            generate_duplicate_report(
                 args.json_file,
                 args.output,
                 args.top
             )
-            if not args.output:
-                print(report)
         elif 'recommendations' in data:
             # It's a consolidation plan
-            report = generate_consolidation_report(
+            # Report function will automatically use pager if no output file specified
+            generate_consolidation_report(
                 args.json_file,
                 args.output
             )
-            if not args.output:
-                print(report)
         else:
             print("Error: Unknown JSON format. Expected a duplicate report or consolidation plan.")
             sys.exit(1)

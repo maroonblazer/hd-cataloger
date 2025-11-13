@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from typing import Dict, List, Optional
 from datetime import datetime
 
@@ -26,15 +27,31 @@ def format_size(size_bytes: int) -> str:
     return f"{size_bytes:.2f} PB"
 
 
+def display_with_pager(text: str) -> None:
+    """
+    Display text using a pager (like less) for easy scrolling.
+
+    Args:
+        text: The text to display
+    """
+    try:
+        import pydoc
+        pydoc.pager(text)
+    except Exception:
+        # If pager fails, just print normally
+        print(text)
+
+
 def generate_duplicate_report(duplicate_report_path: str, output_path: Optional[str] = None,
-                              top_n: int = 20) -> str:
+                              top_n: int = 20, use_pager: bool = True) -> str:
     """
     Generate a human-readable report from a duplicate report JSON file.
 
     Args:
         duplicate_report_path: Path to duplicate report JSON file
-        output_path: Optional path to save the report (if None, returns as string)
+        output_path: Optional path to save the report (if None, displays with pager)
         top_n: Number of top items to show in each category
+        use_pager: Whether to use pager when displaying to terminal (default: True)
 
     Returns:
         The report as a string
@@ -146,18 +163,22 @@ def generate_duplicate_report(duplicate_report_path: str, output_path: Optional[
         with open(output_path, 'w') as f:
             f.write(report_text)
         print(f"\nReport saved to: {output_path}")
+    elif use_pager:
+        # Display with pager for easy scrolling
+        display_with_pager(report_text)
 
     return report_text
 
 
 def generate_consolidation_report(consolidation_plan_path: str,
-                                  output_path: Optional[str] = None) -> str:
+                                  output_path: Optional[str] = None, use_pager: bool = True) -> str:
     """
     Generate a human-readable report from a consolidation plan JSON file.
 
     Args:
         consolidation_plan_path: Path to consolidation plan JSON file
-        output_path: Optional path to save the report (if None, returns as string)
+        output_path: Optional path to save the report (if None, displays with pager)
+        use_pager: Whether to use pager when displaying to terminal (default: True)
 
     Returns:
         The report as a string
@@ -219,6 +240,9 @@ def generate_consolidation_report(consolidation_plan_path: str,
         with open(output_path, 'w') as f:
             f.write(report_text)
         print(f"\nReport saved to: {output_path}")
+    elif use_pager:
+        # Display with pager for easy scrolling
+        display_with_pager(report_text)
 
     return report_text
 
