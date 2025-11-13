@@ -40,11 +40,12 @@ python3 main.py --help
 
 ### Workflow
 
-The typical workflow involves three steps:
+The typical workflow involves these steps:
 
 1. **Catalog each drive** - Creates JSON files with file inventories
 2. **Find duplicates** - Analyzes catalogs to identify duplicate files
-3. **Plan consolidation** - Generates recommendations for file consolidation
+3. **Generate report** (optional) - Creates human-readable reports from JSON files
+4. **Plan consolidation** - Generates recommendations for file consolidation
 
 ### Step 1: Catalog Your Drives
 
@@ -93,7 +94,33 @@ This creates `catalogs/duplicate_report.json` containing:
 - Total redundant space consumed
 - All locations where each duplicate exists
 
-### Step 3: Plan Consolidation
+### Step 3: Generate Report (Optional)
+
+To view your results in a human-readable format:
+
+```bash
+python3 main.py report catalogs/duplicate_report.json
+```
+
+This displays a formatted report showing:
+- Summary statistics
+- Top duplicates by redundant space
+- Files with most copies
+- Redundancy breakdown by volume
+
+You can also save the report to a file:
+
+```bash
+python3 main.py report catalogs/duplicate_report.json -o duplicate_report.txt
+```
+
+Or customize the number of top items shown:
+
+```bash
+python3 main.py report catalogs/duplicate_report.json --top 50
+```
+
+### Step 4: Plan Consolidation
 
 Generate a consolidation plan to minimize drives needed:
 
@@ -182,6 +209,43 @@ python3 main.py consolidate <duplicate_report> <catalog1> <catalog2> [...] [opti
 python3 main.py consolidate catalogs/duplicate_report.json catalogs/*.json \
   --capacities Drive1:2000 Drive2:4000 Drive3:1000
 ```
+
+### report
+
+Generate human-readable reports from JSON files.
+
+```bash
+python3 main.py report <json_file> [options]
+```
+
+**Arguments:**
+- `json_file` - Path to JSON file (duplicate report or consolidation plan)
+
+**Options:**
+- `-o, --output` - Path to save report (if not specified, prints to console)
+- `--top N` - Number of top items to show (default: 20, only for duplicate reports)
+
+**Examples:**
+```bash
+# View duplicate report in terminal
+python3 main.py report catalogs/duplicate_report.json
+
+# Save duplicate report to file
+python3 main.py report catalogs/duplicate_report.json -o report.txt
+
+# Show top 50 duplicates instead of default 20
+python3 main.py report catalogs/duplicate_report.json --top 50
+
+# View consolidation plan
+python3 main.py report catalogs/consolidation_plan.json
+```
+
+**Report Types:**
+
+The report command automatically detects the JSON type and generates appropriate reports:
+
+- **Duplicate Reports**: Shows summary statistics, top duplicates by size, files with most copies, and redundancy by volume
+- **Consolidation Plans**: Shows drive recommendations, space utilization, and files to keep/delete
 
 ## How It Works
 

@@ -15,6 +15,7 @@ import os
 from src.catalog import scan_drive
 from src.duplicates import find_duplicates
 from src.consolidate import plan_consolidation
+from src.report import generate_duplicate_report, generate_consolidation_report, load_json
 
 
 def cmd_catalog(args):
@@ -58,6 +59,38 @@ def cmd_consolidate(args):
         sys.exit(1)
 
 
+def cmd_report(args):
+    """Handle the 'report' command."""
+    try:
+        # Determine report type based on JSON content
+        data = load_json(args.json_file)
+
+        if 'duplicates' in data:
+            # It's a duplicate report
+            report = generate_duplicate_report(
+                args.json_file,
+                args.output,
+                args.top
+            )
+            if not args.output:
+                print(report)
+        elif 'recommendations' in data:
+            # It's a consolidation plan
+            report = generate_consolidation_report(
+                args.json_file,
+                args.output
+            )
+            if not args.output:
+                print(report)
+        else:
+            print("Error: Unknown JSON format. Expected a duplicate report or consolidation plan.")
+            sys.exit(1)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -79,6 +112,10 @@ Examples:
 
   # Plan consolidation with drive capacity specifications
   %(prog)s consolidate catalogs/duplicate_report.json catalogs/*.json --capacities Drive1:2000 Drive2:4000
+
+  # Generate human-readable report
+  %(prog)s report catalogs/duplicate_report.json
+  %(prog)s report catalogs/consolidation_plan.json -o report.txt
         """
     )
 
@@ -146,6 +183,27 @@ Examples:
         help='Path to save consolidation plan (default: catalogs/consolidation_plan.json)'
     )
     parser_consolidate.set_defaults(func=cmd_consolidate)
+
+    # Report command
+    parser_report = subparsers.add_parser(
+        'report',
+        help='Generate human-readable reports from JSON files'
+    )
+    parser_report.add_argument(
+        'json_file',
+        help='Path to JSON file (duplicate report or consolidation plan)'
+    )
+    parser_report.add_argument(
+        '-o', '--output',
+        help='Path to save report (if not specified, prints to console)'
+    )
+    parser_report.add_argument(
+        '--top',
+        type=int,
+        default=20,
+        help='Number of top items to show (default: 20, only for duplicate reports)'
+    )
+    parser_report.set_defaults(func=cmd_report)
 
     # Parse arguments
     args = parser.parse_args()
